@@ -6,7 +6,6 @@ class MessageModel {
   final String senderImage;
   final String contactUID;
   final String message;
-
   final MessageEnum messageType;
   final DateTime timeSent;
   final String messageId;
@@ -43,7 +42,7 @@ class MessageModel {
       Constants.isSeen: isSeen,
       Constants.repliedMessage: repliedMessage,
       Constants.repliedTo: repliedTo,
-      Constants.repliedMessageType: repliedMessageType,
+      Constants.repliedMessageType: repliedMessageType.name,
     };
   }
 
@@ -63,5 +62,21 @@ class MessageModel {
       repliedMessageType:
           map[Constants.repliedMessageType].toString().toMessageEnum(),
     );
+  }
+
+  copyWith({required String userId}) {
+    return MessageModel(
+        senderUID: senderUID,
+        senderName: senderName,
+        senderImage: senderImage,
+        contactUID: userId,
+        message: message,
+        messageType: messageType,
+        timeSent: timeSent,
+        messageId: messageId,
+        isSeen: isSeen,
+        repliedMessage: repliedMessage,
+        repliedTo: repliedTo,
+        repliedMessageType: repliedMessageType);
   }
 }

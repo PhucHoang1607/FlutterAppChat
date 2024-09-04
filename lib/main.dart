@@ -13,6 +13,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_app_chat/main_screen/profile_screen.dart';
 import 'package:flutter_app_chat/main_screen/setting_screen.dart';
 import 'package:flutter_app_chat/provider/authentication_provider.dart';
+import 'package:flutter_app_chat/provider/chat_provider.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 
@@ -26,6 +27,9 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
+        ChangeNotifierProvider(
+          create: (_) => ChatProvider(),
+        )
       ],
       child: MainApp(savedThemeMode: savedThemeMode),
     ),

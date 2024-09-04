@@ -23,21 +23,24 @@ class _FriendScreenState extends State<FriendScreen> {
         title: const Text('Friend Screen'),
         centerTitle: true,
       ),
-      body: Column(
-        children: [
-          CupertinoSearchTextField(
-            placeholder: 'Search',
-            style: const TextStyle(color: Colors.white),
-            onChanged: (value) {
-              print(value);
-            },
-          ),
-          const Expanded(
-            child: FriendList(
-              viewType: FriendViewType.friends,
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            CupertinoSearchTextField(
+              placeholder: 'Search',
+              style: const TextStyle(color: Colors.white),
+              onChanged: (value) {
+                print(value);
+              },
             ),
-          ),
-        ],
+            const Expanded(
+              child: FriendList(
+                viewType: FriendViewType.friends,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

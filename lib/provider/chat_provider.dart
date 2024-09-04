@@ -98,6 +98,9 @@ class ChatProvider extends ChangeNotifier {
       required Function onSucess,
       required Function(String p1) onError}) async {
     try {
+      // 0. contact MessageModel
+      final contactMessageModel =
+          messageModel.copyWith(userId: messageModel.senderUID);
       // 1. initialize last message for the sender
       final senderLastMessage = LastMessageModel(
         senderUID: messageModel.senderUID,
@@ -111,12 +114,12 @@ class ChatProvider extends ChangeNotifier {
       );
       // 2. initialize last message for the contact
       final contactLastMessage = senderLastMessage.copyWith(
-        contactUID: contactUID,
-        contactName: contactName,
-        contactImage: contactImage,
+        contactUID: messageModel.senderUID,
+        contactName: messageModel.senderName,
+        contactImage: messageModel.senderImage,
       );
 
-      //run transaction
+      // run transaction
       await _firestore.runTransaction((transaction) async {
         // 3. send message to sender firestore location
         transaction.set(
@@ -138,9 +141,9 @@ class ChatProvider extends ChangeNotifier {
               .doc(messageModel.senderUID)
               .collection(Constants.messages)
               .doc(messageModel.messageId),
-          messageModel.toMap(),
+          contactMessageModel.toMap(),
         );
-        // 5. send last message to sender firestore location
+        // 5. send the last message to sender firestore location
         transaction.set(
           _firestore
               .collection(Constants.users)
@@ -149,7 +152,7 @@ class ChatProvider extends ChangeNotifier {
               .doc(contactUID),
           senderLastMessage.toMap(),
         );
-        // 6. send last message to contact firestore location
+        // 6. send the last message to contact firestore location
         transaction.set(
           _firestore
               .collection(Constants.users)
@@ -164,6 +167,57 @@ class ChatProvider extends ChangeNotifier {
       onError(e.message ?? e.toString());
     } catch (e) {
       onError(e.toString());
+    }
+  }
+
+  //get the chat list screen
+  Stream<List<LastMessageModel>> getChatsListStream(String userId) {
+    return _firestore
+        .collection(Constants.users)
+        .doc(userId)
+        .collection(Constants.chats)
+        .orderBy(Constants.timeSent, descending: true)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        return LastMessageModel.fromMap(doc.data());
+      }).toList();
+    });
+  }
+
+  //stream chat collection
+  Stream<List<MessageModel>> getMessageStream({
+    required String userId,
+    required String contactUID,
+    required String isGroup,
+  }) {
+    // 1. check if its a group message
+    if (isGroup.isNotEmpty) {
+      return _firestore
+          .collection(Constants.groups)
+          .doc(contactUID)
+          .collection(Constants.messages)
+          .orderBy(Constants.timeSent, descending: false)
+          .snapshots()
+          .map((snapshot) {
+        return snapshot.docs.map((doc) {
+          return MessageModel.fromMap(doc.data());
+        }).toList();
+      });
+    } else {
+      return _firestore
+          .collection(Constants.users)
+          .doc(userId)
+          .collection(Constants.chats)
+          .doc(contactUID)
+          .collection(Constants.messages)
+          .orderBy(Constants.timeSent, descending: false)
+          .snapshots()
+          .map((snapshot) {
+        return snapshot.docs.map((doc) {
+          return MessageModel.fromMap(doc.data());
+        }).toList();
+      });
     }
   }
 }
