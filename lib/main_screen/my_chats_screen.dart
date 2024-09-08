@@ -5,16 +5,17 @@ import 'package:flutter_app_chat/constants.dart';
 import 'package:flutter_app_chat/model/last_message_model.dart';
 import 'package:flutter_app_chat/provider/authentication_provider.dart';
 import 'package:flutter_app_chat/provider/chat_provider.dart';
+import 'package:flutter_app_chat/utilities/global_methods.dart';
 import 'package:provider/provider.dart';
 
-class ChatsListScreen extends StatefulWidget {
-  const ChatsListScreen({super.key});
+class MyChatsScreen extends StatefulWidget {
+  const MyChatsScreen({super.key});
 
   @override
-  State<ChatsListScreen> createState() => _ChatsListScreenState();
+  State<MyChatsScreen> createState() => _MyChatsScreenState();
 }
 
-class _ChatsListScreenState extends State<ChatsListScreen> {
+class _MyChatsScreenState extends State<MyChatsScreen> {
   @override
   Widget build(BuildContext context) {
     final uid = context.read<AuthenticationProvider>().userModel!.uid;
@@ -51,6 +52,7 @@ class _ChatsListScreenState extends State<ChatsListScreen> {
                       itemCount: chatsList.length,
                       itemBuilder: (context, index) {
                         final chat = chatsList[index];
+                        final type = chat.messageType;
                         final dateTimeSent =
                             formatDate(chat.timeSent, [hh, ":", nn, ' ', am]);
                         //check if the last messag3e is me
@@ -60,16 +62,14 @@ class _ChatsListScreenState extends State<ChatsListScreen> {
                         final lastMessage =
                             isMe ? 'You: ${chat.message}' : chat.message;
                         return ListTile(
-                          leading: CircleAvatar(
-                            radius: 30,
-                            backgroundImage: NetworkImage(chat.contactImage),
-                          ),
+                          leading: userImageWidget(
+                              imageUrl: chat.contactImage,
+                              radius: 40,
+                              onTap: () {}),
+                          contentPadding: EdgeInsets.zero,
                           title: Text(chat.contactName),
-                          subtitle: Text(
-                            lastMessage,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                          subtitle:
+                              messageToShow(type: type, message: lastMessage),
                           trailing: Text(dateTimeSent),
                           onTap: () {
                             Navigator.pushNamed(context, Constants.chatScreen,
@@ -79,6 +79,7 @@ class _ChatsListScreenState extends State<ChatsListScreen> {
                                   Constants.contactImage: chat.contactImage,
                                   Constants.groupId: '',
                                 });
+                            print(type);
                           },
                         );
                       },

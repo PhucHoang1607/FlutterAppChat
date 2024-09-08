@@ -1,8 +1,12 @@
 //show snackbar method
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_app_chat/constants.dart';
 import 'package:flutter_app_chat/utilities/assets_manager.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 
 void showSnackBar(BuildContext context, String message) {
@@ -21,7 +25,7 @@ Widget userImageWidget(
       radius: radius,
       backgroundColor: Colors.grey[300],
       backgroundImage: imageUrl.isNotEmpty
-          ? NetworkImage(imageUrl)
+          ? CachedNetworkImageProvider(imageUrl)
           : const AssetImage(AssetsManager.userImage) as ImageProvider,
     ),
   );
@@ -59,4 +63,86 @@ Future<File?> pickImage(
     }
   }
   return fileImage;
+}
+
+Center buildDateTime(groupedByValue) {
+  return Center(
+    //width: double.infinity,
+    child: Card(
+      color: Color.fromARGB(255, 146, 47, 188),
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text(
+          formatDate(
+              groupedByValue.timeSent, [yy, '-', M, '-', d]), //[M, ' ', d]
+          textAlign: TextAlign.center,
+          style: GoogleFonts.openSans(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.2,
+              color: Colors.white),
+        ),
+      ),
+    ),
+  );
+}
+
+Widget messageToShow({required MessageEnum type, required String message}) {
+  switch (type) {
+    case MessageEnum.text:
+      return Text(
+        message,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
+    case MessageEnum.image:
+      return const Row(
+        children: [
+          Icon(Icons.image_outlined),
+          SizedBox(
+            width: 10,
+          ),
+          Text(
+            'Image',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          )
+        ],
+      );
+    case MessageEnum.video:
+      return const Row(
+        children: [
+          Icon(Icons.video_library_outlined),
+          SizedBox(
+            width: 10,
+          ),
+          Text(
+            'Video',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          )
+        ],
+      );
+    case MessageEnum.audio:
+      return const Row(
+        children: [
+          Icon(Icons.audiotrack_outlined),
+          SizedBox(
+            width: 10,
+          ),
+          Text(
+            'Audio',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          )
+        ],
+      );
+    default:
+      return Text(
+        message,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+      );
+  }
 }

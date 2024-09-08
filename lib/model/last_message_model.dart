@@ -42,7 +42,7 @@ class LastMessageModel {
       contactName: map[Constants.contactName] ?? '',
       contactImage: map[Constants.contactImage] ?? '',
       message: map[Constants.message] ?? '',
-      messageType: map[Constants.senderUID].toString().toMessageEnum(),
+      messageType: map[Constants.messageType].toString().toMessageEnum(),
       timeSent: DateTime.fromMicrosecondsSinceEpoch(map[Constants.timeSent]),
       isSeen: map[Constants.isSeen] ?? false,
     );
