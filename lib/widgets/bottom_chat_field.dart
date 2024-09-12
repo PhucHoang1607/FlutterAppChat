@@ -130,6 +130,19 @@ class _BottomChatFieldState extends State<BottomChatField> {
     }
   }
 
+  void selectVideo() async {
+    File? fileVideo = await pickVideo(onFail: (String message) {
+      showSnackBar(context, message);
+    });
+
+    popContext();
+
+    if (fileVideo != null) {
+      filePath = fileVideo.path;
+      sendFileMessage(messageType: MessageEnum.video);
+    }
+  }
+
   void sendFileMessage({required MessageEnum messageType}) {
     final currentUser = context.read<AuthenticationProvider>().userModel!;
     final chatProvider = context.read<ChatProvider>();
@@ -145,8 +158,14 @@ class _BottomChatFieldState extends State<BottomChatField> {
         onSucess: () {
           _textEditingController.clear();
           _foucusNode.unfocus();
+          setState(() {
+            isSendingAudio = false;
+          });
         },
         onError: (error) {
+          setState(() {
+            isSendingAudio = false;
+          });
           showSnackBar(context, error);
         });
   }
@@ -236,7 +255,7 @@ class _BottomChatFieldState extends State<BottomChatField> {
                                             leading:
                                                 const Icon(Icons.video_library),
                                             title: const Text('Video'),
-                                            onTap: () {},
+                                            onTap: selectVideo,
                                           )
                                         ],
                                       ),
@@ -265,7 +284,10 @@ class _BottomChatFieldState extends State<BottomChatField> {
                     ),
                   ),
                   chatProvider.isLoading
-                      ? const CircularProgressIndicator()
+                      ? const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: CircularProgressIndicator(),
+                        )
                       : GestureDetector(
                           onTap: isShowSendButton ? sendTextMessage : null,
                           onLongPress: isShowSendButton ? null : startRecording,

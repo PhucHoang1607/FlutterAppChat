@@ -42,9 +42,6 @@ class _ChatListState extends State<ChatList> {
     //get the contactID from the argument
 
     return GestureDetector(
-      onVerticalDragDown: (_) {
-        FocusScope.of(context).unfocus();
-      },
       child: StreamBuilder<List<MessageModel>>(
         stream: context.read<ChatProvider>().getMessageStream(
             userId: uid,
@@ -52,7 +49,7 @@ class _ChatListState extends State<ChatList> {
             isGroup: widget.groupId),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return const Text('SOmething went wrong');
+            return const Text('Something went wrong');
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {

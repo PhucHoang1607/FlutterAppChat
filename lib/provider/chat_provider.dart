@@ -19,7 +19,7 @@ class ChatProvider extends ChangeNotifier {
   MessageReplyModel? get messageReplyModel => _messageReplyModel;
 
   void setLoading(bool value) {
-    _isLoading = true;
+    _isLoading = value;
     notifyListeners();
   }
 
@@ -110,7 +110,7 @@ class ChatProvider extends ChangeNotifier {
     required Function(String) onError,
   }) async {
     setLoading(true);
-    notifyListeners();
+
     try {
       var messageId = const Uuid().v4();
 
@@ -159,8 +159,10 @@ class ChatProvider extends ChangeNotifier {
         );
       }
       setMessageReplyModel(null);
+      setLoading(false);
     } catch (e) {
       onError(e.toString());
+      setLoading(false);
     }
   }
 
@@ -277,9 +279,11 @@ class ChatProvider extends ChangeNotifier {
       setLoading(false);
       onSucess();
     } on FirebaseException catch (e) {
+      setLoading(false);
       onError(e.message ?? e.toString());
     } catch (e) {
       onError(e.toString());
+      setLoading(false);
     }
   }
 
