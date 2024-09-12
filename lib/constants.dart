@@ -15,6 +15,8 @@ class Constants {
   static const String privacyPolicyScreen = '/privacyPolicyScreen';
   static const String termAndConditionScreen = '/termAndConditionScreen';
 
+  static const String testPullRequest = "Test";
+
   static const String uid = 'uid';
   static const String name = 'name';
   static const String phoneNumber = 'phoneNumber';
