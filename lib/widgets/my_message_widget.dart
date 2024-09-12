@@ -65,7 +65,8 @@ class MyMessageWidget extends StatelessWidget {
                                 ),
                                 DisplayMessageType(
                                     message: message.repliedMessage,
-                                    type: message.messageType,
+                                    type: message.repliedMessageType,
+                                    isReply: true,
                                     color: Colors.white,
                                     maxLines: 1,
                                     overFlow: TextOverflow.ellipsis),
@@ -84,6 +85,7 @@ class MyMessageWidget extends StatelessWidget {
                         message: message.message,
                         type: message.messageType,
                         color: Colors.white,
+                        isReply: false,
                         maxLines: null,
                         overFlow: null,
                       ),

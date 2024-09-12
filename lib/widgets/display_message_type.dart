@@ -1,6 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_chat/constants.dart';
+import 'package:flutter_app_chat/widgets/audio_player_widget.dart';
+import 'package:flutter_app_chat/widgets/video_player_widget.dart';
 
 //This widget use what to show the Type of message
 class DisplayMessageType extends StatelessWidget {
@@ -9,12 +11,14 @@ class DisplayMessageType extends StatelessWidget {
       required this.message,
       required this.type,
       required this.color,
+      required this.isReply,
       this.maxLines,
       this.overFlow});
 
   final String message;
   final MessageEnum type;
   final Color color;
+  final bool isReply;
   final int? maxLines;
   final TextOverflow? overFlow;
 
@@ -27,32 +31,42 @@ class DisplayMessageType extends StatelessWidget {
             message,
             style: TextStyle(
               color: color,
-              fontSize: 16,
+              fontSize: 16.0,
             ),
             maxLines: maxLines,
             overflow: overFlow,
           );
         case MessageEnum.image:
-          return CachedNetworkImage(
-            imageUrl: message,
-            fit: BoxFit.cover,
-          );
+          return isReply
+              ? const Icon(Icons.image)
+              : CachedNetworkImage(
+                  width: 200,
+                  height: 200,
+                  imageUrl: message,
+                  fit: BoxFit.cover,
+                );
         case MessageEnum.video:
-          return Image.network(
-            message,
-            fit: BoxFit.cover,
-          );
+          return isReply
+              ? const Icon(Icons.video_collection)
+              : VideoPlayerWidget(
+                  videoUrl: message,
+                  color: color,
+                  //viewOnly: viewOnly,
+                );
         case MessageEnum.audio:
-          return Image.network(
-            message,
-            fit: BoxFit.cover,
-          );
+          return isReply
+              ? const Icon(Icons.audiotrack)
+              : AudioPlayerWidget(
+                  audioUrl: message,
+                  color: color,
+                  //viewOnly: viewOnly,
+                );
         default:
           return Text(
             message,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 16,
+            style: TextStyle(
+              color: color,
+              fontSize: 16.0,
             ),
             maxLines: maxLines,
             overflow: overFlow,
