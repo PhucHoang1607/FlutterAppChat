@@ -112,6 +112,20 @@ class _BottomChatFieldState extends State<BottomChatField> {
     Navigator.pop(context);
   }
 
+  //select Video File from device
+  void selectVideo() async {
+    File? fileVideo = await pickVideo(onFail: (String message) {
+      showSnackBar(context, message);
+    });
+
+    popContext();
+
+    if (fileVideo != null) {
+      filePath = fileVideo.path;
+      sendFileMessage(messageType: MessageEnum.video);
+    }
+  }
+
   Future<void> cropImage(cropFilePath) async {
     if (cropFilePath != null) {
       CroppedFile? croppedFile = await ImageCropper().cropImage(
@@ -145,8 +159,14 @@ class _BottomChatFieldState extends State<BottomChatField> {
         onSucess: () {
           _textEditingController.clear();
           _foucusNode.unfocus();
+          setState(() {
+            isSendingAudio = false;
+          });
         },
         onError: (error) {
+          setState(() {
+            isSendingAudio = false;
+          });
           showSnackBar(context, error);
         });
   }
@@ -204,10 +224,10 @@ class _BottomChatFieldState extends State<BottomChatField> {
                   : const SizedBox.shrink(),
               Row(
                 children: [
-                  chatProvider.isLoading
-                      ? const CircularProgressIndicator()
-                      : IconButton(
-                          onPressed: () {
+                  IconButton(
+                    onPressed: isSendingAudio
+                        ? null
+                        : () {
                             showBottomSheet(
                                 context: context,
                                 builder: (context) {
@@ -236,7 +256,7 @@ class _BottomChatFieldState extends State<BottomChatField> {
                                             leading:
                                                 const Icon(Icons.video_library),
                                             title: const Text('Video'),
-                                            onTap: () {},
+                                            onTap: selectVideo,
                                           )
                                         ],
                                       ),
@@ -244,8 +264,8 @@ class _BottomChatFieldState extends State<BottomChatField> {
                                   );
                                 });
                           },
-                          icon: const Icon(Icons.attachment),
-                        ),
+                    icon: const Icon(Icons.attachment),
+                  ),
                   Expanded(
                     child: TextFormField(
                       controller: _textEditingController,
@@ -265,7 +285,10 @@ class _BottomChatFieldState extends State<BottomChatField> {
                     ),
                   ),
                   chatProvider.isLoading
-                      ? const CircularProgressIndicator()
+                      ? const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: CircularProgressIndicator(),
+                        )
                       : GestureDetector(
                           onTap: isShowSendButton ? sendTextMessage : null,
                           onLongPress: isShowSendButton ? null : startRecording,

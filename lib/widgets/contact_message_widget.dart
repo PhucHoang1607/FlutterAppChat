@@ -69,7 +69,8 @@ class ContactMessageWidget extends StatelessWidget {
                                 ),
                                 DisplayMessageType(
                                   message: message.repliedMessage,
-                                  type: message.messageType,
+                                  type: message.repliedMessageType,
+                                  isReply: true,
                                   color: Colors.black,
                                   maxLines: 1,
                                   overFlow: TextOverflow.ellipsis,
@@ -89,6 +90,7 @@ class ContactMessageWidget extends StatelessWidget {
                       DisplayMessageType(
                         message: message.message,
                         type: message.messageType,
+                        isReply: false,
                         color: Colors.black,
                         maxLines: null,
                         overFlow: null,
