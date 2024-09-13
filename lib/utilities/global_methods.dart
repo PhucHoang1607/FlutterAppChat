@@ -162,3 +162,22 @@ Widget messageToShow({required MessageEnum type, required String message}) {
       );
   }
 }
+
+// default list of emoji for reaction and plus at the end for more enmoji
+//like, love, haha, wow, sad, angry and plus sign
+
+List<String> reactions = [
+  '👍',
+  '❤️',
+  '😂',
+  '😮',
+  '😢',
+  '😠',
+  '➕',
+];
+
+List<String> contextMenu = [
+  'Reply',
+  'Copy',
+  'Delete',
+];

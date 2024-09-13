@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:date_format/date_format.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_app_chat/model/message_model.dart';
 import 'package:flutter_app_chat/model/message_reply_model.dart';
 import 'package:flutter_app_chat/provider/authentication_provider.dart';
@@ -10,6 +11,7 @@ import 'package:flutter_app_chat/provider/chat_provider.dart';
 import 'package:flutter_app_chat/utilities/global_methods.dart';
 import 'package:flutter_app_chat/widgets/contact_message_widget.dart';
 import 'package:flutter_app_chat/widgets/my_message_widget.dart';
+import 'package:flutter_app_chat/widgets/reactions_dialog.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:provider/provider.dart';
@@ -32,6 +34,59 @@ class _ChatListState extends State<ChatList> {
     // TODO: implement dispose
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void onContextMenuClicked(
+      {required String item, required MessageModel message}) {
+    switch (item) {
+      case 'Reply':
+        //set message reply to true
+        final messageReply = MessageReplyModel(
+          message: message.message,
+          senderUID: message.senderUID,
+          senderName: message.senderName,
+          senderImage: message.senderImage,
+          messageType: message.messageType,
+          isMe: true,
+        );
+        context.read<ChatProvider>().setMessageReplyModel(messageReply);
+        break;
+
+      case 'Copy':
+        //copy to clipboard
+        Clipboard.setData(ClipboardData(text: message.message));
+        showSnackBar(context, 'Message cpied to clipboard');
+        break;
+
+      case 'Delete':
+        //TODO selete message
+        // context.read<ChatProvider>().deleteMessage(
+        //     userId: uid,
+        //     contactUID: widget.contactUID,
+        //     messageId: message.messageId,
+        //     groupId: widget.groupId);
+        break;
+    }
+  }
+
+  showReactionDialog({required MessageModel message, required String uid}) {
+    showDialog(
+      context: context,
+      builder: (context) => ReactionsDialog(
+        uid: uid,
+        message: message,
+        onReactionsTap: (reaction) {
+          Navigator.pop(context);
+          print('show $reaction');
+          if (reaction == '➕') {
+          } else {}
+        },
+        onContextMenuTap: (item) {
+          Navigator.pop(context);
+          onContextMenuClicked(item: item, message: message);
+        },
+      ),
+    );
   }
 
   @override
@@ -108,29 +163,35 @@ class _ChatListState extends State<ChatList> {
                       );
                 }
 
-                final dateTime =
-                    formatDate(element.timeSent, [hh, ':', nn, ' ', am]);
+                // final dateTime =
+                //     formatDate(element.timeSent, [hh, ':', nn, ' ', am]);
+
                 //Check if we sent the last message
                 final isMe = element.senderUID == uid;
                 return isMe
-                    ? Padding(
-                        padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                        child: MyMessageWidget(
-                          message: element,
-                          onLeftSwipe: () {
-                            //set there message
-                            final messageReply = MessageReplyModel(
-                              message: element.message,
-                              senderUID: element.senderUID,
-                              senderName: element.senderName,
-                              senderImage: element.senderImage,
-                              messageType: element.messageType,
-                              isMe: isMe,
-                            );
-                            context
-                                .read<ChatProvider>()
-                                .setMessageReplyModel(messageReply);
-                          },
+                    ? InkWell(
+                        onLongPress: () {
+                          showReactionDialog(message: element, uid: uid);
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                          child: MyMessageWidget(
+                            message: element,
+                            onLeftSwipe: () {
+                              //set there message
+                              final messageReply = MessageReplyModel(
+                                message: element.message,
+                                senderUID: element.senderUID,
+                                senderName: element.senderName,
+                                senderImage: element.senderImage,
+                                messageType: element.messageType,
+                                isMe: isMe,
+                              );
+                              context
+                                  .read<ChatProvider>()
+                                  .setMessageReplyModel(messageReply);
+                            },
+                          ),
                         ),
                       )
                     : Padding(
