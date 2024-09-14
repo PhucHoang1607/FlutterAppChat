@@ -16,13 +16,17 @@ class StackedReactionsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //í reaction are greater than 5, get the first 5 reactions
-    final reactionToShow = message.reactions.length > 5
-        ? message.reactions.sublist(0, 5)
-        : message.reactions;
+    //get the reaction from the list
+    final messageReactions =
+        message.reactions.map((e) => e.split('=')[1]).toList();
+
+    //If reaction are greater than 5, get the first 5 reactions
+    final reactionToShow = messageReactions.length > 5
+        ? messageReactions.sublist(0, 5)
+        : messageReactions;
 
     //remaining reaction
-    final remainingReactions = message.reactions.length - reactionToShow.length;
+    final remainingReactions = messageReactions.length - reactionToShow.length;
     final allReactions = reactionToShow
         .asMap()
         .map((index, reaction) {

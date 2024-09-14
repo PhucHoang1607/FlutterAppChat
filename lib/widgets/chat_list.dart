@@ -1,7 +1,8 @@
 import 'dart:math';
 
 import 'package:date_format/date_format.dart';
-import 'package:flutter/foundation.dart';
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app_chat/model/message_model.dart';
@@ -66,6 +67,7 @@ class _ChatListState extends State<ChatList> {
         //     contactUID: widget.contactUID,
         //     messageId: message.messageId,
         //     groupId: widget.groupId);
+        print('Delete');
         break;
     }
   }
@@ -77,15 +79,58 @@ class _ChatListState extends State<ChatList> {
         isMyMessage: isMe,
         message: message,
         onReactionsTap: (reaction) {
-          Navigator.pop(context);
+          //Navigator.pop(context);
           print('show $reaction');
+
           if (reaction == '➕') {
-          } else {}
+            Future.delayed(const Duration(milliseconds: 500), () {
+              Navigator.pop(context);
+              showEmojiContainer(messageId: message.messageId);
+            });
+          } else {
+            Future.delayed(const Duration(milliseconds: 500), () {
+              Navigator.pop(context);
+              //add reaction to message
+              sendReactionToMessage(
+                  reaction: reaction, messageId: message.messageId);
+            });
+          }
         },
         onContextMenuTap: (item) {
           Navigator.pop(context);
           onContextMenuClicked(item: item, message: message);
         },
+      ),
+    );
+  }
+
+  void sendReactionToMessage(
+      {required String reaction, required String messageId}) {
+    //get the senderUID
+    final senderUID = context.read<AuthenticationProvider>().userModel!.uid;
+
+    context.read<ChatProvider>().sendReactionToMessages(
+          senderUID: senderUID,
+          contactUID: widget.contactUID,
+          messageId: messageId,
+          reaction: reaction,
+          groupId: widget.groupId.isNotEmpty,
+        );
+  }
+
+  void showEmojiContainer({required String messageId}) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SizedBox(
+        height: 300,
+        child: EmojiPicker(
+          onEmojiSelected: (category, emoji) {
+            print(emoji);
+            Navigator.pop(context);
+            // add emoji to message
+            sendReactionToMessage(reaction: emoji.emoji, messageId: messageId);
+          },
+        ),
       ),
     );
   }
@@ -153,9 +198,12 @@ class _ChatListState extends State<ChatList> {
                     child: buildDateTime(groupedByValue));
               },
               itemBuilder: (context, dynamic element) {
+                final padding1 = element.reactions.isEmpty ? 0.0 : 20.0;
+                final padding2 = element.reactions.isEmpty ? 0.0 : 25.0;
+
                 //set messages as seen
                 if (!element.isSeen && element.senderUID != uid) {
-                  print('running');
+                  //print('running');
                   context.read<ChatProvider>().setMessageAsSeen(
                         userId: uid,
                         contactUID: widget.contactUID,
@@ -178,7 +226,7 @@ class _ChatListState extends State<ChatList> {
                             },
                             child: Padding(
                               padding:
-                                  const EdgeInsets.only(top: 8.0, bottom: 20.0),
+                                  EdgeInsets.only(top: 8.0, bottom: padding1),
                               child: MyMessageWidget(
                                 message: element,
                                 onLeftSwipe: () {
@@ -219,7 +267,7 @@ class _ChatListState extends State<ChatList> {
                             },
                             child: Padding(
                               padding:
-                                  const EdgeInsets.only(top: 8.0, bottom: 22.0),
+                                  EdgeInsets.only(top: 8.0, bottom: padding2),
                               child: ContactMessageWidget(
                                 message: element,
                                 onRightSwipe: () {
@@ -242,7 +290,7 @@ class _ChatListState extends State<ChatList> {
                           ),
                           Positioned(
                             bottom: 0,
-                            right: 250,
+                            right: 110,
                             child: StackedReactionsWidget(
                               message: element,
                               size: 20,
