@@ -70,6 +70,7 @@ class ChatProvider extends ChangeNotifier {
         repliedMessage: repliedMessage,
         repliedTo: repliedTo,
         repliedMessageType: repliedMessageType,
+        reactions: [],
       );
 
       // 3. check if its a group message and send to group else send to contact
@@ -142,6 +143,7 @@ class ChatProvider extends ChangeNotifier {
         repliedMessage: repliedMessage,
         repliedTo: repliedTo,
         repliedMessageType: repliedMessageType,
+        reactions: [],
       );
 
       // 4. Check if its a group message and send to group else send to contact

@@ -13,6 +13,7 @@ class MessageModel {
   final String repliedMessage;
   final String repliedTo;
   final MessageEnum repliedMessageType;
+  final List<String> reactions;
 
   MessageModel({
     required this.senderUID,
@@ -27,6 +28,7 @@ class MessageModel {
     required this.repliedMessage,
     required this.repliedTo,
     required this.repliedMessageType,
+    required this.reactions,
   });
 
   Map<String, dynamic> toMap() {
@@ -43,6 +45,7 @@ class MessageModel {
       Constants.repliedMessage: repliedMessage,
       Constants.repliedTo: repliedTo,
       Constants.repliedMessageType: repliedMessageType.name,
+      Constants.reactions: reactions,
     };
   }
 
@@ -61,22 +64,25 @@ class MessageModel {
       repliedTo: map[Constants.repliedTo] ?? '',
       repliedMessageType:
           map[Constants.repliedMessageType].toString().toMessageEnum(),
+      reactions: List<String>.from(map[Constants.reactions] ?? []),
     );
   }
 
   copyWith({required String userId}) {
     return MessageModel(
-        senderUID: senderUID,
-        senderName: senderName,
-        senderImage: senderImage,
-        contactUID: userId,
-        message: message,
-        messageType: messageType,
-        timeSent: timeSent,
-        messageId: messageId,
-        isSeen: isSeen,
-        repliedMessage: repliedMessage,
-        repliedTo: repliedTo,
-        repliedMessageType: repliedMessageType);
+      senderUID: senderUID,
+      senderName: senderName,
+      senderImage: senderImage,
+      contactUID: userId,
+      message: message,
+      messageType: messageType,
+      timeSent: timeSent,
+      messageId: messageId,
+      isSeen: isSeen,
+      repliedMessage: repliedMessage,
+      repliedTo: repliedTo,
+      repliedMessageType: repliedMessageType,
+      reactions: reactions,
+    );
   }
 }
