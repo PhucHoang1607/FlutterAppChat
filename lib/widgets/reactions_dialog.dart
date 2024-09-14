@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_chat/constants.dart';
 import 'package:flutter_app_chat/model/message_model.dart';
@@ -6,13 +7,13 @@ import 'package:flutter_app_chat/utilities/global_methods.dart';
 class ReactionsDialog extends StatefulWidget {
   const ReactionsDialog({
     super.key,
-    required this.uid,
+    required this.isMyMessage,
     required this.message,
     required this.onReactionsTap,
     required this.onContextMenuTap,
   });
 
-  final String uid;
+  final bool isMyMessage;
   final MessageModel message;
   final Function(String) onReactionsTap;
   final Function(String) onContextMenuTap;
@@ -22,9 +23,11 @@ class ReactionsDialog extends StatefulWidget {
 }
 
 class _ReactionsDialogState extends State<ReactionsDialog> {
+  bool reactionClicked = false;
+  int? clickedReactionIndex;
+  int? clickedContextMenuIndex;
   @override
   Widget build(BuildContext context) {
-    final isMyMessage = widget.uid == widget.message.senderUID;
     return Align(
       alignment: Alignment.centerRight,
       child: IntrinsicWidth(
@@ -53,19 +56,36 @@ class _ReactionsDialogState extends State<ReactionsDialog> {
                     children: [
                       for (final reaction in reactions)
                         InkWell(
-                          onTap: () {
-                            widget.onReactionsTap(reaction);
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.all(8),
-                            child: Text(
-                              reaction,
-                              style: const TextStyle(
-                                fontSize: 20,
+                            onTap: () {
+                              widget.onReactionsTap(reaction);
+                              setState(() {
+                                clickedReactionIndex =
+                                    reactions.indexOf(reaction);
+                              });
+                              //set back to false after miliseconds
+                              Future.delayed(
+                                const Duration(milliseconds: 500),
+                                //     () {
+                                //   setState(() {
+                                //     reactionClicked = false;
+                                //   });
+                                // }
+                              );
+                            },
+                            child: Pulse(
+                              infinite: false,
+                              duration: const Duration(milliseconds: 500),
+                              animate: reactionClicked &&
+                                  clickedReactionIndex ==
+                                      reactions.indexOf(reaction),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8),
+                                child: Text(
+                                  reaction,
+                                  style: const TextStyle(fontSize: 20),
+                                ),
                               ),
-                            ),
-                          ),
-                        )
+                            ))
                     ],
                   ),
                 ),
@@ -80,13 +100,13 @@ class _ReactionsDialogState extends State<ReactionsDialog> {
                 child: Container(
                   margin: const EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
-                      color: isMyMessage
+                      color: widget.isMyMessage
                           ? Theme.of(context).colorScheme.primary
                           : Colors.grey.shade500,
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.shade500,
+                          color: Colors.grey.shade600,
                           spreadRadius: 1,
                           blurRadius: 2,
                           offset: const Offset(0, 1),
@@ -134,7 +154,7 @@ class _ReactionsDialogState extends State<ReactionsDialog> {
                     width: MediaQuery.of(context).size.width * 0.25,
                     margin: const EdgeInsets.symmetric(vertical: 10),
                     decoration: BoxDecoration(
-                        color: isMyMessage
+                        color: widget.isMyMessage
                             ? Theme.of(context).colorScheme.inversePrimary
                             : Colors.white,
                         borderRadius: BorderRadius.circular(20),
@@ -152,6 +172,10 @@ class _ReactionsDialogState extends State<ReactionsDialog> {
                           InkWell(
                             onTap: () {
                               widget.onContextMenuTap(menu);
+                              setState(() {
+                                clickedContextMenuIndex =
+                                    contextMenu.indexOf(menu);
+                              });
                             },
                             child: Padding(
                               padding: const EdgeInsets.all(8),
@@ -163,12 +187,18 @@ class _ReactionsDialogState extends State<ReactionsDialog> {
                                     menu,
                                     style: const TextStyle(fontSize: 20),
                                   ),
-                                  Icon(
-                                    menu == 'Reply'
-                                        ? Icons.reply
-                                        : menu == 'Copy'
-                                            ? Icons.copy
-                                            : Icons.delete,
+                                  Pulse(
+                                    infinite: false,
+                                    duration: const Duration(milliseconds: 500),
+                                    animate: clickedContextMenuIndex ==
+                                        contextMenu.indexOf(menu),
+                                    child: Icon(
+                                      menu == 'Reply'
+                                          ? Icons.reply
+                                          : menu == 'Copy'
+                                              ? Icons.copy
+                                              : Icons.delete,
+                                    ),
                                   ),
                                 ],
                               ),

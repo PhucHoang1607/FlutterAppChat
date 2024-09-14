@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_chat/constants.dart';
 import 'package:flutter_app_chat/provider/authentication_provider.dart';
@@ -41,6 +42,42 @@ class _BottomChatFieldState extends State<BottomChatField> {
   bool isRecording = false;
   bool isShowSendButton = false;
   bool isSendingAudio = false;
+  bool isShowEmojiPicker = false;
+
+  //Hide emoji container
+  void hideEmojiContainer() {
+    setState(() {
+      isShowEmojiPicker = false;
+    });
+  }
+
+  //show emoji container
+  void showEmojiContainer() {
+    setState(() {
+      isShowEmojiPicker = true;
+    });
+  }
+
+  //show keyboard
+  void showKeyboard() {
+    _foucusNode.requestFocus();
+  }
+
+  //hide keyboard
+  void hideKeyboard() {
+    _foucusNode.unfocus();
+  }
+
+  //toggle emoji and keyboard container
+  void toggleEmojiKeyboardContainer() {
+    if (isShowEmojiPicker) {
+      showKeyboard();
+      hideEmojiContainer();
+    } else {
+      hideKeyboard();
+      showEmojiContainer();
+    }
+  }
 
   @override
   void initState() {
@@ -199,123 +236,167 @@ class _BottomChatFieldState extends State<BottomChatField> {
       builder: (context, chatProvider, child) {
         final messageReply = chatProvider.messageReplyModel;
         final isMessageReply = messageReply != null;
-        return Container(
-          //height: 50,
-          alignment: Alignment.center,
-          //padding: const EdgeInsets.only(left: 10),
-          margin: const EdgeInsets.only(left: 5, right: 5, bottom: 5, top: 0),
-          decoration: BoxDecoration(
-            border: Border.all(
-                width: 2, color: Theme.of(context).colorScheme.primary),
+        return Column(
+          children: [
+            Container(
+              //height: 50,
+              alignment: Alignment.center,
+              //padding: const EdgeInsets.only(left: 10),
+              margin:
+                  const EdgeInsets.only(left: 5, right: 5, bottom: 5, top: 0),
+              decoration: BoxDecoration(
+                border: Border.all(
+                    width: 2, color: Theme.of(context).colorScheme.primary),
 
-            // borderRadius: const BorderRadius.only(
-            //   topLeft: Radius.circular(20),
-            //   topRight: Radius.circular(20),
-            // ),
-            borderRadius: BorderRadius.circular(30),
-            color: Theme.of(context).cardColor,
-            //border: ,
-          ),
-          child: Column(
-            children: [
-              isMessageReply
-                  ? const MessageReplyPreview()
-                  : const SizedBox.shrink(),
-              Row(
+                // borderRadius: const BorderRadius.only(
+                //   topLeft: Radius.circular(20),
+                //   topRight: Radius.circular(20),
+                // ),
+                borderRadius: BorderRadius.circular(30),
+                color: Theme.of(context).cardColor,
+                //border: ,
+              ),
+              child: Column(
                 children: [
-                  chatProvider.isLoading
-                      ? const CircularProgressIndicator()
-                      : IconButton(
-                          onPressed: () {
-                            showBottomSheet(
-                                context: context,
-                                builder: (context) {
-                                  return SizedBox(
-                                    height: 200,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Column(
-                                        children: [
-                                          ListTile(
-                                            leading:
-                                                const Icon(Icons.camera_alt),
-                                            title: const Text('Camera'),
-                                            onTap: () {
-                                              selectImage(true);
-                                            },
-                                          ),
-                                          ListTile(
-                                            leading: const Icon(Icons.image),
-                                            title: const Text('Gallery'),
-                                            onTap: () {
-                                              selectImage(false);
-                                            },
-                                          ),
-                                          ListTile(
-                                            leading:
-                                                const Icon(Icons.video_library),
-                                            title: const Text('Video'),
-                                            onTap: selectVideo,
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                });
-                          },
-                          icon: const Icon(Icons.attachment),
-                        ),
-                  Expanded(
-                    child: TextFormField(
-                      controller: _textEditingController,
-                      focusNode: _foucusNode,
-                      decoration: const InputDecoration.collapsed(
-                        hintText: 'Type a message',
-                        border: OutlineInputBorder(
-                          //borderRadius: BorderRadius.circular(30),
-                          borderSide: BorderSide.none,
-                        ),
+                  isMessageReply
+                      ? const MessageReplyPreview()
+                      : const SizedBox.shrink(),
+                  Row(
+                    children: [
+                      IconButton(
+                        onPressed: toggleEmojiKeyboardContainer,
+                        icon: Icon(isShowEmojiPicker
+                            ? Icons.keyboard_alt
+                            : Icons.emoji_emotions_outlined),
                       ),
-                      onChanged: (value) {
-                        setState(() {
-                          isShowSendButton = value.isNotEmpty;
-                        });
-                      },
-                    ),
-                  ),
-                  chatProvider.isLoading
-                      ? const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: CircularProgressIndicator(),
-                        )
-                      : GestureDetector(
-                          onTap: isShowSendButton ? sendTextMessage : null,
-                          onLongPress: isShowSendButton ? null : startRecording,
-                          onLongPressUp: stopRecording,
-                          child: Container(
-                            margin: const EdgeInsets.fromLTRB(5, 5, 10, 5),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(30),
-                                color: Colors.deepPurple),
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: isShowSendButton
-                                  ? const Icon(
-                                      Icons.send,
-                                      color: Colors.white,
-                                      size: 18,
-                                    )
-                                  : const Icon(
-                                      Icons.mic,
-                                      color: Colors.white,
-                                    ),
+                      // chatProvider.isLoading
+                      //     ? const CircularProgressIndicator()
+                      //     :
+                      IconButton(
+                        onPressed: isSendingAudio
+                            ? null
+                            : () {
+                                showBottomSheet(
+                                    context: context,
+                                    builder: (context) {
+                                      return SizedBox(
+                                        height: 200,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              ListTile(
+                                                leading: const Icon(
+                                                    Icons.camera_alt),
+                                                title: const Text('Camera'),
+                                                onTap: () {
+                                                  selectImage(true);
+                                                },
+                                              ),
+                                              ListTile(
+                                                leading:
+                                                    const Icon(Icons.image),
+                                                title: const Text('Gallery'),
+                                                onTap: () {
+                                                  selectImage(false);
+                                                },
+                                              ),
+                                              ListTile(
+                                                leading: const Icon(
+                                                    Icons.video_library),
+                                                title: const Text('Video'),
+                                                onTap: selectVideo,
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    });
+                              },
+                        icon: const Icon(Icons.attachment),
+                      ),
+                      Expanded(
+                        child: TextFormField(
+                          controller: _textEditingController,
+                          focusNode: _foucusNode,
+                          decoration: const InputDecoration.collapsed(
+                            hintText: 'Type a message',
+                            border: OutlineInputBorder(
+                              //borderRadius: BorderRadius.circular(30),
+                              borderSide: BorderSide.none,
                             ),
                           ),
+                          onChanged: (value) {
+                            setState(() {
+                              isShowSendButton = value.isNotEmpty;
+                            });
+                          },
+                          onTap: () {
+                            hideEmojiContainer();
+                          },
                         ),
+                      ),
+                      chatProvider.isLoading
+                          ? const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: CircularProgressIndicator(),
+                            )
+                          : GestureDetector(
+                              onTap: isShowSendButton ? sendTextMessage : null,
+                              onLongPress:
+                                  isShowSendButton ? null : startRecording,
+                              onLongPressUp: stopRecording,
+                              child: Container(
+                                margin: const EdgeInsets.fromLTRB(5, 5, 10, 5),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(30),
+                                    color: Colors.deepPurple),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: isShowSendButton
+                                      ? const Icon(
+                                          Icons.send,
+                                          color: Colors.white,
+                                          size: 18,
+                                        )
+                                      : const Icon(
+                                          Icons.mic,
+                                          color: Colors.white,
+                                        ),
+                                ),
+                              ),
+                            ),
+                    ],
+                  ),
                 ],
               ),
-            ],
-          ),
+            ),
+
+            //show emoji container
+            isShowEmojiPicker
+                ? SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.3,
+                    child: EmojiPicker(
+                      onEmojiSelected: (category, Emoji emoji) {
+                        _textEditingController.text =
+                            _textEditingController.text + emoji.emoji;
+                        if (!isShowSendButton) {
+                          setState(() {
+                            isShowSendButton = true;
+                          });
+                        }
+                      },
+                      onBackspacePressed: () {
+                        _textEditingController.text = _textEditingController
+                            .text.characters
+                            .skipLast(1)
+                            .toString();
+                      },
+                    ),
+                  )
+                : const SizedBox.shrink(),
+          ],
         );
       },
     );

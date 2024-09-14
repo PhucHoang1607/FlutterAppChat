@@ -20,6 +20,8 @@ class ContactMessageWidget extends StatelessWidget {
     final time = formatDate(message.timeSent, [hh, ':', nn, ' ', am]);
     final isReplying = message.repliedTo.isNotEmpty;
     final senderName = message.repliedTo == "You" ? message.senderName : "You";
+    //CHECK IF IS DARK MODE
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return SwipeTo(
       onRightSwipe: (details) {
         onRightSwipe();
@@ -31,11 +33,16 @@ class ContactMessageWidget extends StatelessWidget {
             maxWidth: MediaQuery.of(context).size.width * 0.7,
             minWidth: MediaQuery.of(context).size.width * 0.3,
           ),
-          child: Container(
-            padding: const EdgeInsets.all(8.0),
-            decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(10)),
+          child: Card(
+            elevation: 5,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(15),
+                topRight: Radius.circular(15),
+                bottomRight: Radius.circular(15),
+              ),
+            ),
+            color: Theme.of(context).cardColor,
             child: Stack(
               children: [
                 Padding(
@@ -51,7 +58,7 @@ class ContactMessageWidget extends StatelessWidget {
                       if (isReplying) ...[
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.grey[400],
+                            color: Colors.grey[500],
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Padding(
@@ -64,7 +71,7 @@ class ContactMessageWidget extends StatelessWidget {
                                 Text(
                                   senderName,
                                   style: const TextStyle(
-                                      color: Colors.black,
+                                      color: Colors.white70,
                                       fontWeight: FontWeight.bold),
                                 ),
                                 DisplayMessageType(
@@ -78,7 +85,7 @@ class ContactMessageWidget extends StatelessWidget {
                                 Text(
                                   message.repliedMessage,
                                   style: const TextStyle(
-                                    color: Colors.black,
+                                    color: Colors.white,
                                     //fontSize: 10,
                                   ),
                                 )
@@ -91,7 +98,7 @@ class ContactMessageWidget extends StatelessWidget {
                         message: message.message,
                         type: message.messageType,
                         isReply: false,
-                        color: Colors.black,
+                        color: isDarkMode ? Colors.white : Colors.black,
                         maxLines: null,
                         overFlow: null,
                       ),
@@ -112,8 +119,8 @@ class ContactMessageWidget extends StatelessWidget {
                     right: 10,
                     child: Text(
                       time,
-                      style: const TextStyle(
-                        color: Colors.black,
+                      style: TextStyle(
+                        color: isDarkMode ? Colors.white : Colors.black,
                         fontSize: 10,
                       ),
                     ))

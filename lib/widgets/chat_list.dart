@@ -12,6 +12,7 @@ import 'package:flutter_app_chat/utilities/global_methods.dart';
 import 'package:flutter_app_chat/widgets/contact_message_widget.dart';
 import 'package:flutter_app_chat/widgets/my_message_widget.dart';
 import 'package:flutter_app_chat/widgets/reactions_dialog.dart';
+import 'package:flutter_app_chat/widgets/stacked_reactions.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:provider/provider.dart';
@@ -69,11 +70,11 @@ class _ChatListState extends State<ChatList> {
     }
   }
 
-  showReactionDialog({required MessageModel message, required String uid}) {
+  showReactionDialog({required MessageModel message, required bool isMe}) {
     showDialog(
       context: context,
       builder: (context) => ReactionsDialog(
-        uid: uid,
+        isMyMessage: isMe,
         message: message,
         onReactionsTap: (reaction) {
           Navigator.pop(context);
@@ -169,51 +170,86 @@ class _ChatListState extends State<ChatList> {
                 //Check if we sent the last message
                 final isMe = element.senderUID == uid;
                 return isMe
-                    ? InkWell(
-                        onLongPress: () {
-                          showReactionDialog(message: element, uid: uid);
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                          child: MyMessageWidget(
-                            message: element,
-                            onLeftSwipe: () {
-                              //set there message
-                              final messageReply = MessageReplyModel(
-                                message: element.message,
-                                senderUID: element.senderUID,
-                                senderName: element.senderName,
-                                senderImage: element.senderImage,
-                                messageType: element.messageType,
-                                isMe: isMe,
-                              );
-                              context
-                                  .read<ChatProvider>()
-                                  .setMessageReplyModel(messageReply);
+                    ? Stack(
+                        children: [
+                          InkWell(
+                            onLongPress: () {
+                              showReactionDialog(message: element, isMe: isMe);
                             },
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.only(top: 8.0, bottom: 20.0),
+                              child: MyMessageWidget(
+                                message: element,
+                                onLeftSwipe: () {
+                                  //set there message
+                                  final messageReply = MessageReplyModel(
+                                    message: element.message,
+                                    senderUID: element.senderUID,
+                                    senderName: element.senderName,
+                                    senderImage: element.senderImage,
+                                    messageType: element.messageType,
+                                    isMe: isMe,
+                                  );
+                                  context
+                                      .read<ChatProvider>()
+                                      .setMessageReplyModel(messageReply);
+                                },
+                              ),
+                            ),
                           ),
-                        ),
+                          Positioned(
+                            bottom: 4,
+                            right: 90,
+                            child: StackedReactionsWidget(
+                              message: element,
+                              size: 20,
+                              onTap: () {
+                                //show bottom sheet with list of people
+                              },
+                            ),
+                          ),
+                        ],
                       )
-                    : Padding(
-                        padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                        child: ContactMessageWidget(
-                          message: element,
-                          onRightSwipe: () {
-                            // set the message
-                            final messageReply = MessageReplyModel(
-                              message: element.message,
-                              senderUID: element.senderUID,
-                              senderName: element.senderName,
-                              senderImage: element.senderImage,
-                              messageType: element.messageType,
-                              isMe: isMe,
-                            );
+                    : Stack(
+                        children: [
+                          InkWell(
+                            onLongPress: () {
+                              showReactionDialog(message: element, isMe: isMe);
+                            },
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.only(top: 8.0, bottom: 22.0),
+                              child: ContactMessageWidget(
+                                message: element,
+                                onRightSwipe: () {
+                                  // set the message
+                                  final messageReply = MessageReplyModel(
+                                    message: element.message,
+                                    senderUID: element.senderUID,
+                                    senderName: element.senderName,
+                                    senderImage: element.senderImage,
+                                    messageType: element.messageType,
+                                    isMe: isMe,
+                                  );
 
-                            context
-                                .read<ChatProvider>()
-                                .setMessageReplyModel(messageReply);
-                          },
-                        ),
+                                  context
+                                      .read<ChatProvider>()
+                                      .setMessageReplyModel(messageReply);
+                                },
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 0,
+                            right: 250,
+                            child: StackedReactionsWidget(
+                              message: element,
+                              size: 20,
+                              onTap: () {},
+                            ),
+                          ),
+                        ],
                       );
               },
               groupComparator: (value1, value2) {

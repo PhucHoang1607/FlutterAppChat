@@ -28,12 +28,15 @@ class MyMessageWidget extends StatelessWidget {
             minWidth: MediaQuery.of(context).size.width * 0.3,
             maxWidth: MediaQuery.of(context).size.width * 0.7,
           ),
-          child: Container(
-            padding: const EdgeInsets.all(8.0),
-            decoration: BoxDecoration(
-              color: Colors.deepPurple,
-              borderRadius: BorderRadius.circular(10.0),
-            ),
+          child: Card(
+            elevation: 5,
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(15),
+              topRight: Radius.circular(15),
+              bottomLeft: Radius.circular(15),
+            )),
+            color: Colors.deepPurple,
             child: Stack(
               children: [
                 Padding(
